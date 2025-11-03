@@ -1,0 +1,156 @@
+version: '3.9'
+
+services:
+  # 🧠 Autenticación
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./keycloak/realms/:/opt/keycloak/data/import/
+    networks:
+      - tpi-net
+
+  # 🧑‍💼 Usuarios
+  ms-usuarios:
+    build: 
+      context: ../MS-Usuarios
+    container_name: ms-usuarios
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://usuarios-db:5432/usuariosdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8081
+    depends_on:
+      - usuarios-db
+    ports:
+      - "8082:8081"
+    networks:
+      - tpi-net
+
+  usuarios-db:
+    image: postgres:15
+    container_name: usuarios-db
+    environment:
+      POSTGRES_DB: usuariosdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - tpi-net
+
+  # 💰 Tarifas
+  ms-tarifas:
+    build:
+      context: ../MS-Tarifas
+    container_name: ms-tarifas
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://tarifas-db:5432/tarifasdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8082
+    depends_on:
+      - tarifas-db
+    ports:
+      - "8083:8082"
+    networks:
+      - tpi-net
+
+  tarifas-db:
+    image: postgres:15
+    container_name: tarifas-db
+    environment:
+      POSTGRES_DB: tarifasdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    networks:
+      - tpi-net
+
+  # 🚛 Camiones
+  ms-camiones:
+    build:
+      context: ../MS-Camiones
+    container_name: ms-camiones
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://camiones-db:5432/camionesdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8083
+    depends_on:
+      - camiones-db
+    ports:
+      - "8084:8083"
+    networks:
+      - tpi-net
+
+  camiones-db:
+    image: postgres:15
+    container_name: camiones-db
+    environment:
+      POSTGRES_DB: camionesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    networks:
+      - tpi-net
+
+  # 📦 Solicitudes
+  ms-solicitudes:
+    build:
+      context: ../MS-Solicitudes
+    container_name: ms-solicitudes
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://solicitudes-db:5432/solicitudesdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8084
+    depends_on:
+      - solicitudes-db
+    ports:
+      - "8085:8084"
+    networks:
+      - tpi-net
+
+  solicitudes-db:
+    image: postgres:15
+    container_name: solicitudes-db
+    environment:
+      POSTGRES_DB: solicitudesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    networks:
+      - tpi-net
+
+  # 🌐 API Gateway
+  api-gateway:
+    build:
+      context: ./gateway
+    container_name: api-gateway
+    environment:
+      - SERVER_PORT=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ms-usuarios
+      - ms-tarifas
+      - ms-camiones
+      - ms-solicitudes
+    networks:
+      - tpi-net
+
+networks:
+  tpi-net:
+    driver: bridge
