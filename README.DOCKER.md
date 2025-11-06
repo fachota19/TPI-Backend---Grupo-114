@@ -2,6 +2,47 @@
 
 Este documento contiene instrucciones específicas para ejecutar el proyecto usando Docker (Docker Compose). Está pensado para desarrollo local.
 
+## 🌐 Comunicación entre Microservicios en Docker
+
+### Diferencia entre desarrollo local y Docker
+
+#### Desarrollo Local (sin Docker)
+Cuando desarrollas localmente, los servicios se comunican usando `localhost` y sus respectivos puertos:
+```
+http://localhost:8082  # Usuarios
+http://localhost:8083  # Tarifas
+http://localhost:8084  # Camiones
+http://localhost:8085  # Solicitudes
+```
+
+#### Entorno Docker
+En Docker, los servicios se comunican usando el **nombre del servicio** definido en `docker-compose.yml`:
+```
+http://usuarios:8082   # Usuarios
+http://tarifas:8083    # Tarifas
+http://camiones:8084   # Camiones
+http://solicitudes:8085 # Solicitudes
+```
+
+### Configuración de URLs
+- En `application.yml`: URLs para desarrollo local
+- En `application-docker.yml`: URLs usando nombres de servicios
+  ```yaml
+  # application.yml (local)
+  servicios:
+    usuarios: http://localhost:8082
+    
+  # application-docker.yml
+  servicios:
+    usuarios: http://usuarios:8082
+  ```
+
+### Resolución de nombres en Docker
+Docker Compose crea automáticamente:
+1. Una red interna donde cada servicio tiene un DNS con su nombre
+2. Los servicios pueden encontrarse entre sí usando estos nombres
+3. No uses `localhost` - usa el nombre del servicio directamente
+
 ## Requisitos
 
 - Docker Desktop instalado (o Docker Engine)
