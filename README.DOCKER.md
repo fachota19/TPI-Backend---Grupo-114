@@ -1,5 +1,5 @@
 # README – Docker
-
+TODO: Importante leer antes de conectar la BD
 Este documento contiene instrucciones específicas para ejecutar el proyecto usando Docker (Docker Compose). Está pensado para desarrollo local.
 
 ## 🌐 Comunicación entre Microservicios en Docker
