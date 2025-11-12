@@ -1,4 +1,4 @@
-package main.java.com.tpi.gateway;
+package com.tpi.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

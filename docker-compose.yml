@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # 🧠 Autenticación
   keycloak:
@@ -21,7 +19,7 @@ services:
   # 🧑‍💼 Usuarios
   ms-usuarios:
     build: 
-      context: ../MS-Usuarios
+      context: ../../Microservicios/MS-Usuarios  # <--- RUTA CORREGIDA
     container_name: ms-usuarios
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://usuarios-db:5432/usuariosdb
@@ -44,13 +42,15 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
+    volumes: 
+      - usuarios_data:/var/lib/postgresql/data
     networks:
       - tpi-net
 
   # 💰 Tarifas
   ms-tarifas:
     build:
-      context: ../MS-Tarifas
+      context: ../../Microservicios/MS-Tarifas  # <--- RUTA CORREGIDA
     container_name: ms-tarifas
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://tarifas-db:5432/tarifasdb
@@ -73,13 +73,15 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5434:5432"
+    volumes: 
+      - tarifas_data:/var/lib/postgresql/data
     networks:
       - tpi-net
 
   # 🚛 Camiones
   ms-camiones:
     build:
-      context: ../MS-Camiones
+      context: ../../Microservicios/MS-Camiones  # <--- RUTA CORREGIDA
     container_name: ms-camiones
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://camiones-db:5432/camionesdb
@@ -102,13 +104,15 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5435:5432"
+    volumes: 
+      - camiones_data:/var/lib/postgresql/data
     networks:
       - tpi-net
 
   # 📦 Solicitudes
   ms-solicitudes:
     build:
-      context: ../MS-Solicitudes
+      context: ../../Microservicios/MS-Solicitudes  # <--- RUTA CORREGIDA
     container_name: ms-solicitudes
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://solicitudes-db:5432/solicitudesdb
@@ -131,25 +135,52 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5436:5432"
+    volumes: 
+      - solicitudes_data:/var/lib/postgresql/data
     networks:
       - tpi-net
 
   # 🌐 API Gateway
   api-gateway:
     build:
-      context: ./gateway
+      context: ./gateway  # <--- ESTA RUTA ESTÁ BIEN
     container_name: api-gateway
     environment:
       - SERVER_PORT=8080
     ports:
       - "8080:8080"
     depends_on:
+      - keycloak 
       - ms-usuarios
       - ms-tarifas
       - ms-camiones
       - ms-solicitudes
     networks:
       - tpi-net
+
+  # 🐘 Interfaz Gráfica para todas las BDs
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: bda@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80" 
+    depends_on: 
+      - usuarios-db
+      - tarifas-db
+      - camiones-db
+      - solicitudes-db
+    networks:
+      - tpi-net
+
+# Define los volúmenes persistentes
+volumes: 
+  usuarios_data:
+  tarifas_data:
+  camiones_data:
+  solicitudes_data:
 
 networks:
   tpi-net:

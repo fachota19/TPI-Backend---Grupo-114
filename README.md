@@ -58,18 +58,128 @@ Ejemplos de endpoints:
 ---
 
 ## 🐳 Despliegue local (Docker Compose)
-
 ### 🔧 Requisitos
-- Docker y Docker Compose instalados
-- JDK 17+ (para desarrollo local)
-- Maven 3.9+
+- Docker (Desktop) instalado
+- Docker Compose (v2) o docker-compose instalado
+- JDK 17+ (si compilas/ejecutas localmente los microservicios fuera de contenedores)
+- Maven 3.9+ (solo para desarrollo local)
 
-### ▶️ Levantar el entorno
-1. Clonar este repositorio:
-   ```bash
-   git clone https://github.com/fachota19/TPI-Backend---Grupo-114.git
-   cd TPI-Backend---Grupo-114
-2. Ejecutar:
-   ```bash
-   docker-compose up --build
+> Nota: las instrucciones asumen que ejecutas los comandos desde el directorio raíz del repositorio.
+
+### ▶️ Levantar el entorno (rápido)
+1. Sitúate en la carpeta raíz del proyecto:
+
+```bash
+cd TPI-Backend---Grupo-114
+```
+
+2. Levanta los servicios en segundo plano (recomendado):
+
+```bash
+docker-compose up -d --build
+```
+
+3. Verifica que los contenedores estén activos:
+
+```bash
+docker-compose ps
+```
+
+### 🔍 Servicios y puertos relevantes
+- API Gateway: http://localhost:8080
+- Keycloak (admin): http://localhost:8081
+- pgAdmin (UI): http://localhost:5050
+
+Postgres (contenedores -> puertos expuestos en host):
+- usuarios-db -> host:5433 (contenedor puerto 5432)
+- tarifas-db -> host:5434
+- camiones-db -> host:5435
+- solicitudes-db -> host:5436
+
+### Credenciales por defecto de pgAdmin (definidas en `docker-compose.yml`)
+- Email: `admin@admin.com`
+- Password: `admin`
+
+Accede a pgAdmin en http://localhost:5050 e inicia sesión con esas credenciales.
+
+### Conectar pgAdmin a las bases de datos del proyecto
+Si añades la conexión desde la interfaz de pgAdmin que corre en el mismo Docker Compose, usa:
+
+- Host: el nombre del servicio (por ejemplo `usuarios-db`)
+- Port: `5432`
+- Username: `postgres`
+- Password: `postgres`
+
+Si conectas desde tu máquina host (fuera de Docker), usa `localhost` y el puerto mapeado (por ejemplo `5433` para `usuarios-db`).
+
+### Cambiar la contraseña de pgAdmin
+Hay dos opciones sencillas:
+
+1) Editar `docker-compose.yml` directamente
+
+ - Localiza el servicio `pgadmin` y modifica la línea `PGADMIN_DEFAULT_PASSWORD: admin` por la contraseña deseada.
+ - Luego recrea el servicio:
+
+```bash
+docker-compose down
+docker-compose up -d --build
+```
+
+2) Usar una variable de entorno (más limpia)
+
+ - Crea un archivo `.env` en la raíz con por ejemplo:
+
+```env
+# .env
+PGADMIN_DEFAULT_PASSWORD=MiClaveSegura123
+PGADMIN_DEFAULT_EMAIL=admin@admin.com
+```
+
+ - Modifica `docker-compose.yml` para que use esas variables (ejemplo):
+
+```yaml
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+```
+
+ - Finalmente recrea los servicios:
+
+```bash
+docker-compose down
+docker-compose up -d --build
+```
+
+> Importante: evita usar contraseñas sencillas (`admin`) en entornos reales o compartidos.
+
+### Comandos útiles
+- Ver logs de todos los servicios:
+
+```bash
+docker-compose logs -f
+```
+
+- Ver logs de un servicio específico (ej. pgadmin):
+
+```bash
+docker-compose logs -f pgadmin
+```
+
+- Detener y eliminar contenedores (sin borrar volúmenes):
+
+```bash
+docker-compose down
+```
+
+- Detener y eliminar contenedores y volúmenes (p. ej. para reinicio limpio):
+
+```bash
+docker-compose down -v
+```
+
+### Seguridad y notas finales
+- Las credenciales por defecto en `docker-compose.yml` (`postgres:postgres`, `admin:admin`) son válidas solo para desarrollo.
+- Para producción, añade gestión de secretos (Vault / Docker secrets / variables de entorno seguras) y no expongas puertos innecesarios.
+
+Si quieres, puedo crear un ejemplo de `.env.sample` y aplicar los cambios mínimos en `docker-compose.yml` para leer las variables desde `.env`.
 
