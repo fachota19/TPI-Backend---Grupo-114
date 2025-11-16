@@ -11,8 +11,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # IMPORTANTE: dentro de Docker el hostname de Keycloak es "keycloak"
-          issuer-uri: http://keycloak:8080/realms/backend
+          # Corregido: apunta al realm "tpi-backend"
+          issuer-uri: http://keycloak:8080/realms/tpi-backend
 
   cloud:
     gateway:
@@ -39,6 +39,8 @@ spring:
           uri: http://ms-tarifas:8080
           predicates:
             - Path=/tarifas/**
+          filters: # <-- MODIFICACIÓN AÑADIDA
+            - TokenRelay
 
         # ===============================
         # MS-CAMIONES
@@ -47,6 +49,8 @@ spring:
           uri: http://ms-camiones:8080
           predicates:
             - Path=/camiones/**, /depositos/**
+          filters: # <-- MODIFICACIÓN AÑADIDA
+            - TokenRelay
 
         # ===============================
         # MS-SOLICITUDES

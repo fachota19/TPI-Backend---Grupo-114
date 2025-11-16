@@ -32,11 +32,11 @@ public class CorrelationIdFilter implements GlobalFilter, Ordered {
                 correlationId);
 
         // Continuar y loguear respuesta al terminar
-        return chain.filter(exchange).doOnSuccess(done ->
-                log.info("[Response] {} CID={}",
-                        response.getStatusCode(),
-                        correlationId)
-        );
+        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+            log.info("[Response] {} CID={}",
+                    response.getStatusCode(),
+                    correlationId);
+        }));
     }
 
     @Override
