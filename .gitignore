@@ -1,0 +1,64 @@
+# ===========================
+# GENERALES
+# ===========================
+.DS_Store
+Thumbs.db
+
+# ===========================
+# VSCODE / IDEs
+# ===========================
+.vscode/
+.idea/
+*.iml
+
+# ===========================
+# MAVEN / JAVA
+# ===========================
+target/
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.orig
+
+# ===========================
+# NODE / FRONTEND
+# ===========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===========================
+# DOCKER
+# ===========================
+*.pid
+*.tar
+docker-data/
+**/logs/
+
+# ===========================
+# ARCHIVOS DE ENTORNO
+# ===========================
+*.env
+.env.*
+keycloak/data/
+keycloak/export/
+
+# ===========================
+# MICRO SERVICIOS (repos externos)
+# NO deben ser trackeados por el repo padre
+# ===========================
+MS-Solicitudes/
+MS-Usuarios/
+MS-Tarifas/
+MS-Camiones/
+
+# ===========================
+# OTROS
+# ===========================
+swagger.json
+package-lock.json
