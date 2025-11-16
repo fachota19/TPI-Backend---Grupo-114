@@ -4,60 +4,68 @@ server:
 spring:
   application:
     name: api-gateway
-
-  cloud:
-    gateway:
-      routes:
-        # Usuarios Service Route
-        - id: usuarios
-          uri: http://ms-usuarios:8081
-          predicates:
-            - Path=/api/usuarios/**
-          filters:
-            - StripPrefix=1
-
-        # Tarifas Service Route
-        - id: tarifas
-          uri: http://ms-tarifas:8082
-          predicates:
-            - Path=/api/tarifas/**
-          filters:
-            - StripPrefix=1
-
-        # Camiones Service Route
-        - id: camiones
-          uri: http://ms-camiones:8083
-          predicates:
-            - Path=/api/camiones/**
-          filters:
-            - StripPrefix=1
-
-        # Solicitudes Service Route
-        - id: solicitudes
-          uri: http://ms-solicitudes:8084
-          predicates:
-            - Path=/api/solicitudes/**
-          filters:
-            - StripPrefix=1
-
   main:
     web-application-type: reactive
 
-  # Configuración de seguridad para Docker
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/tpi-realm  # Usa el nombre del servicio de Keycloak
+          # IMPORTANTE: dentro de Docker el hostname de Keycloak es "keycloak"
+          issuer-uri: http://keycloak:8080/realms/backend
 
-# Actuator endpoints para health checks
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
-      probes:
-        enabled: true  # Habilita health probes para Kubernetes/Docker
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+        - AddResponseHeader=X-Gateway, Grupo114
+
+      routes:
+
+        # ===============================
+        # MS-USUARIOS
+        # ===============================
+        - id: ms-usuarios
+          uri: http://ms-usuarios:8080
+          predicates:
+            - Path=/usuarios/**, /clientes/**, /transportistas/**
+          filters:
+            - TokenRelay
+
+        # ===============================
+        # MS-TARIFAS
+        # ===============================
+        - id: ms-tarifas
+          uri: http://ms-tarifas:8080
+          predicates:
+            - Path=/tarifas/**
+
+        # ===============================
+        # MS-CAMIONES
+        # ===============================
+        - id: ms-camiones
+          uri: http://ms-camiones:8080
+          predicates:
+            - Path=/camiones/**, /depositos/**
+
+        # ===============================
+        # MS-SOLICITUDES
+        # ===============================
+        - id: ms-solicitudes
+          uri: http://ms-solicitudes:8080
+          predicates:
+            - Path=/solicitudes/**, /tramos/**, /rutas/**
+          filters:
+            - TokenRelay
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

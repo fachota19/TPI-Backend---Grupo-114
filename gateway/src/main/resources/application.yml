@@ -5,43 +5,68 @@ spring:
   application:
     name: api-gateway
 
-  cloud:
-    gateway:
-      routes:
-        - id: usuarios
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/usuarios/**
-          filters:
-            - StripPrefix=1
-
-        - id: tarifas
-          uri: http://localhost:8082
-          predicates:
-            - Path=/api/tarifas/**
-          filters:
-            - StripPrefix=1
-
-        - id: camiones
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/camiones/**
-          filters:
-            - StripPrefix=1
-
-        - id: solicitudes
-          uri: http://localhost:8084
-          predicates:
-            - Path=/api/solicitudes/**
-          filters:
-            - StripPrefix=1
-
   main:
     web-application-type: reactive
 
-  # Seguridad (Keycloak)
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081/realms/tpi-realm
+          issuer-uri: http://localhost:8081/realms/backend
+
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+        - AddResponseHeader=X-Gateway, Grupo114
+
+      routes:
+
+        # ===============================
+        # MS-USUARIOS (local)
+        # ===============================
+        - id: ms-usuarios
+          uri: http://localhost:8082
+          predicates:
+            - Path=/usuarios/**, /clientes/**, /transportistas/**
+          filters:
+            - TokenRelay
+
+        # ===============================
+        # MS-TARIFAS (local)
+        # ===============================
+        - id: ms-tarifas
+          uri: http://localhost:8083
+          predicates:
+            - Path=/tarifas/**
+
+        # ===============================
+        # MS-CAMIONES (local)
+        # ===============================
+        - id: ms-camiones
+          uri: http://localhost:8084
+          predicates:
+            - Path=/camiones/**, /depositos/**
+
+        # ===============================
+        # MS-SOLICITUDES (local)
+        # ===============================
+        - id: ms-solicitudes
+          uri: http://localhost:8085
+          predicates:
+            - Path=/solicitudes/**, /tramos/**, /rutas/**
+          filters:
+            - TokenRelay
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG

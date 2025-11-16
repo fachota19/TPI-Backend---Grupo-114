@@ -1,5 +1,5 @@
 services:
-  # 🧠 Autenticación
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: keycloak
@@ -16,20 +16,19 @@ services:
     networks:
       - tpi-net
 
-  # 🧑‍💼 Usuarios
   ms-usuarios:
     build: 
-      context: ../../Microservicios/MS-Usuarios  # <--- RUTA CORREGIDA
+      context: ./MS-Usuarios
     container_name: ms-usuarios
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://usuarios-db:5432/usuariosdb
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - SERVER_PORT=8081
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://usuarios-db:5432/usuariosdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - usuarios-db
     ports:
-      - "8082:8081"
+      - "8082:8080"
     networks:
       - tpi-net
 
@@ -47,20 +46,19 @@ services:
     networks:
       - tpi-net
 
-  # 💰 Tarifas
   ms-tarifas:
     build:
-      context: ../../Microservicios/MS-Tarifas  # <--- RUTA CORREGIDA
+      context: ./MS-Tarifas
     container_name: ms-tarifas
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://tarifas-db:5432/tarifasdb
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - SERVER_PORT=8082
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://tarifas-db:5432/tarifasdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - tarifas-db
     ports:
-      - "8083:8082"
+      - "8083:8080"
     networks:
       - tpi-net
 
@@ -78,20 +76,19 @@ services:
     networks:
       - tpi-net
 
-  # 🚛 Camiones
   ms-camiones:
     build:
-      context: ../../Microservicios/MS-Camiones  # <--- RUTA CORREGIDA
+      context: ./MS-Camiones
     container_name: ms-camiones
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://camiones-db:5432/camionesdb
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - SERVER_PORT=8083
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://camiones-db:5432/camionesdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - camiones-db
     ports:
-      - "8084:8083"
+      - "8084:8080"
     networks:
       - tpi-net
 
@@ -109,20 +106,19 @@ services:
     networks:
       - tpi-net
 
-  # 📦 Solicitudes
   ms-solicitudes:
     build:
-      context: ../../Microservicios/MS-Solicitudes  # <--- RUTA CORREGIDA
+      context: ./MS-Solicitudes
     container_name: ms-solicitudes
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://solicitudes-db:5432/solicitudesdb
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - SERVER_PORT=8084
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://solicitudes-db:5432/solicitudesdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - solicitudes-db
     ports:
-      - "8085:8084"
+      - "8085:8080"
     networks:
       - tpi-net
 
@@ -140,13 +136,12 @@ services:
     networks:
       - tpi-net
 
-  # 🌐 API Gateway
   api-gateway:
     build:
-      context: ./gateway  # <--- ESTA RUTA ESTÁ BIEN
+      context: ./gateway
     container_name: api-gateway
     environment:
-      - SERVER_PORT=8080
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8080:8080"
     depends_on:
@@ -158,12 +153,11 @@ services:
     networks:
       - tpi-net
 
-  # 🐘 Interfaz Gráfica para todas las BDs
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: bda@admin.com
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80" 
@@ -175,7 +169,6 @@ services:
     networks:
       - tpi-net
 
-# Define los volúmenes persistentes
 volumes: 
   usuarios_data:
   tarifas_data:
