@@ -1,180 +1,303 @@
-📦 TPI Backend – Grupo 114
-Sistema de Gestión de Logística de Contenedores
+# 🚛 TPI Backend – Grupo 114
 
-Universidad Tecnológica Nacional – Facultad Regional Córdoba
-Materia: Backend de Aplicaciones
-Año: 2025
+> **Sistema de Gestión de Logística de Contenedores**
 
-🧑‍🤝‍🧑 Integrantes
+<div align="center">
 
-[Nombres del Grupo 114]
-(Completarlo con los nombres reales)
+**Universidad Tecnológica Nacional – Facultad Regional Córdoba**  
+Materia: Backend de Aplicaciones | Año 2025
 
-🧭 Descripción del Proyecto
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
-Este Trabajo Práctico Integrador implementa un sistema backend distribuido basado en microservicios, diseñado para gestionar la logística de contenedores en una empresa de transporte.
+</div>
 
-El sistema permite administrar:
+---
 
-Solicitudes de transporte de contenedores
+## 👥 Integrantes
 
-Tarifas asociadas a rutas y tramos
+**Grupo 114**
 
-Gestión de clientes, operadores y transportistas
+- [Nombre Integrante 1]
+- [Nombre Integrante 2]
+- [Nombre Integrante 3]
 
-Administración de camiones y depósitos
+---
 
-La infraestructura completa se orquesta desde este repositorio mediante Docker Compose, incluyendo:
+## 📖 Descripción del Proyecto
 
-4 microservicios independientes
+Sistema backend distribuido basado en **microservicios** para gestionar la logística de contenedores en una empresa de transporte. Implementa una arquitectura moderna, escalable y resiliente utilizando las mejores prácticas de desarrollo.
 
-Bases de datos PostgreSQL aisladas
+### 🎯 Funcionalidades Principales
 
-Servidor de autenticación Keycloak
+- 📋 **Gestión de Solicitudes** - Administración completa de solicitudes de transporte
+- 💰 **Sistema de Tarifas** - Cálculo dinámico de tarifas por rutas y tramos
+- 👥 **Gestión de Usuarios** - Clientes, operadores y transportistas
+- 🚚 **Administración de Flota** - Control de camiones y depósitos
+- 🔐 **Autenticación Centralizada** - OAuth2 con Keycloak
+- 🌐 **API Unificada** - Gateway que centraliza todos los servicios
 
-API Gateway para unificación del backend
+### 🏗️ Componentes del Sistema
 
-Aplicación Frontend (Vite + React)
+La infraestructura se orquesta mediante **Docker Compose** e incluye:
 
-🏛 Arquitectura General
+- ✅ 4 Microservicios independientes
+- ✅ Bases de datos PostgreSQL aisladas
+- ✅ Servidor Keycloak para autenticación
+- ✅ API Gateway unificador
+- ✅ Aplicación Frontend (React + Vite)
+- ✅ pgAdmin para gestión de bases de datos
 
-El proyecto sigue una arquitectura basada en microservicios, donde cada MS es completamente independiente:
+---
 
-Microservicio	Funcionalidad	Puerto
-MS-Solicitudes	Solicitudes, rutas, tramos	8085
-MS-Usuarios	Usuarios, clientes, transportistas	8082
-MS-Tarifas	Tarifas y valores base	8083
-MS-Camiones	Camiones y depósitos	8084
+## 🏛️ Arquitectura del Sistema
 
-Todos los microservicios se comunican exclusivamente a través del API Gateway.
+### Microservicios
 
-🌐 API Gateway
+| Microservicio | Funcionalidad | Puerto | Base de Datos |
+|--------------|---------------|--------|---------------|
+| 🚢 **MS-Solicitudes** | Gestión de solicitudes, rutas y tramos | 8085 | PostgreSQL |
+| 👤 **MS-Usuarios** | Usuarios, clientes y transportistas | 8082 | PostgreSQL |
+| 💵 **MS-Tarifas** | Tarifas y valores base | 8083 | PostgreSQL |
+| 🚛 **MS-Camiones** | Camiones y depósitos | 8084 | PostgreSQL |
 
-El gateway unifica todas las rutas bajo:
+> **Nota:** Todos los microservicios se comunican exclusivamente a través del API Gateway, garantizando un punto único de entrada y control.
 
+### Diagrama de Arquitectura
+
+```
+┌─────────────────┐
+│   Frontend      │
+│  (React+Vite)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   API Gateway   │ ◄── Keycloak (OAuth2)
+│   Port: 8080    │
+└────────┬────────┘
+         │
+    ┌────┴────┬────────┬─────────┐
+    ▼         ▼        ▼         ▼
+┌────────┐ ┌──────┐ ┌───────┐ ┌──────────┐
+│Solicits│ │Tarifas│ │Usuarios│ │Camiones  │
+│  8085  │ │ 8083 │ │  8082  │ │   8084   │
+└───┬────┘ └──┬───┘ └───┬────┘ └────┬─────┘
+    │         │         │           │
+    ▼         ▼         ▼           ▼
+   DB        DB        DB          DB
+```
+
+---
+
+## 🌐 API Gateway
+
+El gateway centraliza todas las peticiones bajo una única URL base:
+
+```
 http://localhost:8080/
+```
 
-Rutas expuestas:
-/usuarios/**         
-/clientes/**        
-/transportistas/**  
+### 🔌 Endpoints Disponibles
 
-/tarifas/**
+| Ruta | Microservicio |
+|------|---------------|
+| `/usuarios/**` | MS-Usuarios |
+| `/clientes/**` | MS-Usuarios |
+| `/transportistas/**` | MS-Usuarios |
+| `/tarifas/**` | MS-Tarifas |
+| `/camiones/**` | MS-Camiones |
+| `/depositos/**` | MS-Camiones |
+| `/solicitudes/**` | MS-Solicitudes |
+| `/tramos/**` | MS-Solicitudes |
+| `/rutas/**` | MS-Solicitudes |
 
-/camiones/**
-/depositos/**
+### ⚙️ Características del Gateway
 
-/solicitudes/**
-/tramos/**
-/rutas/**
+- 🔑 Token Relay (integración OAuth2 con Keycloak)
+- 🌍 Configuración global de CORS
+- 🏷️ Headers personalizados
+- 🔀 Ruteo reactivo con Spring Cloud Gateway
+- 🛡️ Filtros de seguridad y validación
 
+---
 
-Además incluye:
+## 🔐 Autenticación con Keycloak
 
-Token Relay (integración con Keycloak)
+El sistema utiliza **Keycloak 24** como Identity Provider para gestionar la autenticación y autorización.
 
-Configuración global de CORS
+### 🔗 Acceso
 
-Encabezados personalizados
+**URL:** http://localhost:8081
 
-Ruteo y filtrado reactivo
+**Credenciales de Administrador:**
+- 👤 Usuario: `admin`
+- 🔑 Password: `admin`
 
-🔐 Autenticación – Keycloak
-
-Se utiliza Keycloak 24 como Identity Provider.
-
-URL:
-
-http://localhost:8081
-
-
-Credenciales de administración:
-
-Usuario: admin
-Password: admin
-
+### 📦 Configuración
 
 El realm se importa automáticamente desde:
-
+```
 /keycloak/realms/
+```
 
-🐳 Ejecución del Proyecto con Docker
+Incluye configuración pre-establecida de:
+- Clientes OAuth2
+- Roles y permisos
+- Usuarios de prueba
+- Flujos de autenticación
 
-Este repositorio actúa como proyecto padre que orquesta todos los componentes.
+---
 
-1️⃣ Clonar el repositorio
+## 🚀 Guía de Instalación y Ejecución
+
+### 📋 Prerequisitos
+
+- Docker 20.10+
+- Docker Compose 2.0+
+- Git
+
+### 1️⃣ Clonar el Repositorio
+
+```bash
 git clone https://github.com/<organizacion>/TPI-Backend---Grupo-114.git
 cd TPI-Backend---Grupo-114
+```
 
-2️⃣ Asegurarse de tener los microservicios descargados
+### 2️⃣ Verificar Estructura de Microservicios
 
-El proyecto requiere que existan estas carpetas (cada una proviene de su propio repo):
+Asegúrate de tener las siguientes carpetas (cada una es un repositorio independiente):
 
-MS-Solicitudes/
-MS-Usuarios/
-MS-Tarifas/
-MS-Camiones/
+```
+TPI-Backend---Grupo-114/
+├── MS-Solicitudes/
+├── MS-Usuarios/
+├── MS-Tarifas/
+├── MS-Camiones/
+├── gateway/
+├── frontend/
+└── keycloak/
+```
 
-3️⃣ Levantar todo el sistema
+### 3️⃣ Levantar el Sistema Completo
+
+```bash
 docker compose up --build -d
+```
 
-4️⃣ Accesos principales
-Servicio	URL
-API Gateway	http://localhost:8080
+Este comando:
+- 🔨 Construye todas las imágenes necesarias
+- 🚀 Levanta todos los contenedores
+- 🔗 Configura la red interna
+- 💾 Inicializa las bases de datos
+- ⚙️ Configura Keycloak automáticamente
 
-Keycloak	http://localhost:8081
+### 4️⃣ Verificar que Todo Esté Funcionando
 
-pgAdmin	http://localhost:5050
+```bash
+docker compose ps
+```
 
-MS-Usuarios	http://localhost:8082
+Todos los servicios deberían mostrar estado `Up`.
 
-MS-Tarifas	http://localhost:8083
+---
 
-MS-Camiones	http://localhost:8084
+## 🔗 URLs de Acceso
 
-MS-Solicitudes	http://localhost:8085
-📁 Estructura del Repositorio
-/
-├── gateway/                  → API Gateway (Spring Cloud Gateway)
-├── frontend/                 → Aplicación web (React + Vite)
-├── MS-Solicitudes/           → (repo externo)
-├── MS-Usuarios/              → (repo externo)
-├── MS-Tarifas/               → (repo externo)
-├── MS-Camiones/              → (repo externo)
-├── keycloak/                 → Realms y configuración de autenticación
-├── docker-compose.yml        → Orquestación completa del sistema
-├── Arquitectura C4.pdf       → Documentación arquitectónica
-├── DER.pdf                   → Diagrama entidad-relación
-├── swagger.json              → Endpoints del sistema
-└── README.md                 → Este archivo
+| Servicio | URL | Descripción |
+|----------|-----|-------------|
+| 🌐 **API Gateway** | http://localhost:8080 | Punto de entrada principal |
+| 🔐 **Keycloak** | http://localhost:8081 | Administración de identidad |
+| 💾 **pgAdmin** | http://localhost:5050 | Administración de BD |
+| 👤 **MS-Usuarios** | http://localhost:8082 | Microservicio de usuarios |
+| 💵 **MS-Tarifas** | http://localhost:8083 | Microservicio de tarifas |
+| 🚛 **MS-Camiones** | http://localhost:8084 | Microservicio de camiones |
+| 🚢 **MS-Solicitudes** | http://localhost:8085 | Microservicio de solicitudes |
 
-🛠 Tecnologías Utilizadas
+---
 
-Java 17 + Spring Boot 3
+## 📁 Estructura del Repositorio
 
-Spring Cloud Gateway
+```
+TPI-Backend---Grupo-114/
+│
+├── 🌐 gateway/                 # API Gateway (Spring Cloud Gateway)
+├── 🎨 frontend/                # Aplicación web (React + Vite)
+├── 🚢 MS-Solicitudes/          # Microservicio de solicitudes
+├── 👤 MS-Usuarios/             # Microservicio de usuarios
+├── 💵 MS-Tarifas/              # Microservicio de tarifas
+├── 🚛 MS-Camiones/             # Microservicio de camiones
+├── 🔐 keycloak/                # Configuración de autenticación
+│   └── realms/                 # Definición del realm
+├── 📄 docker-compose.yml       # Orquestación completa
+├── 📊 Arquitectura C4.pdf      # Documentación arquitectónica
+├── 🗄️ DER.pdf                  # Diagrama entidad-relación
+├── 📋 swagger.json             # Especificación OpenAPI
+└── 📖 README.md                # Este archivo
+```
 
-Spring Security + OAuth2 + JWT
+---
 
-Keycloak 24
+## 🛠️ Stack Tecnológico
 
-PostgreSQL 15
+### Backend
+- ☕ **Java 17** - Lenguaje de programación
+- 🍃 **Spring Boot 3** - Framework principal
+- 🌥️ **Spring Cloud Gateway** - API Gateway
+- 🔒 **Spring Security** - Seguridad
+- 🎫 **OAuth2 + JWT** - Autenticación y autorización
+- 🔐 **Keycloak 24** - Identity Provider
 
-Docker & Docker Compose
+### Base de Datos
+- 🐘 **PostgreSQL 15** - Base de datos relacional
+- 🔧 **pgAdmin 4** - Administración de BD
 
-React + Vite
+### DevOps
+- 🐳 **Docker** - Containerización
+- 📦 **Docker Compose** - Orquestación
+- 🔨 **Maven** - Gestión de dependencias
 
-Maven
+### Frontend
+- ⚛️ **React 18** - Biblioteca UI
+- ⚡ **Vite** - Build tool y dev server
 
-🏁 Estado Actual del Proyecto
+---
 
-✔ Infraestructura Docker funcionando
-✔ Microservicios integrados
-✔ API Gateway operativo
-✔ Keycloak configurado
-✔ Bases de datos aisladas y persistentes
-⬜ Integración Frontend (en progreso según grupo)
+## 📊 Estado del Proyecto
 
-📄 Licencia
+| Componente | Estado |
+|------------|--------|
+| ✅ Infraestructura Docker | Completado |
+| ✅ Microservicios | Completado |
+| ✅ API Gateway | Completado |
+| ✅ Keycloak | Completado |
+| ✅ Bases de Datos | Completado |
+| 🚧 Frontend | En progreso |
+| 📝 Documentación | En progreso |
 
-Proyecto académico desarrollado para fines educativos dentro de la UTN-FRC.
+---
+
+## 📚 Documentación Adicional
+
+- 📐 **Arquitectura C4:** Ver `Arquitectura C4.pdf`
+- 🗄️ **Modelo de Datos:** Ver `DER.pdf`
+- 📋 **API Documentation:** Ver `swagger.json`
+
+---
+
+## 🤝 Contribución
+
+Este es un proyecto académico del Grupo 114. Para contribuir:
+
+1. Crear una rama desde `main`
+2. Realizar los cambios necesarios
+3. Hacer commit con mensajes descriptivos
+4. Crear un Pull Request para revisión
+
+---
+
+## 📝 Licencia
+
+Proyecto académico desarrollado para fines educativos dentro de la **Universidad Tecnológica Nacional - Facultad Regional Córdoba (UTN-FRC)**.
