@@ -14,17 +14,19 @@ public class CorsConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
 
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
+        CorsConfiguration cors = new CorsConfiguration();
 
-        // 👇 Origen del frontend (en desarrollo)
-        config.addAllowedOrigin("http://localhost:5173");  
+        // 🌐 Origen del frontend
+        cors.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173"
+        ));
 
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        cors.setAllowCredentials(true);
+        cors.setAllowedHeaders(Arrays.asList("*"));
+        cors.setAllowedMethods(Arrays.asList("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", cors);
 
         return new CorsWebFilter(source);
     }

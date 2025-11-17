@@ -16,6 +16,7 @@ spring:
 
   cloud:
     gateway:
+
       default-filters:
         - TokenRelay
         - AddResponseHeader=X-Gateway, Grupo114
@@ -23,7 +24,7 @@ spring:
       routes:
 
         # ===============================
-        # MS-USUARIOS (local)
+        # MS-USUARIOS
         # ===============================
         - id: ms-usuarios
           uri: http://localhost:8082
@@ -33,7 +34,7 @@ spring:
             - TokenRelay
 
         # ===============================
-        # MS-TARIFAS (local)
+        # MS-TARIFAS
         # ===============================
         - id: ms-tarifas
           uri: http://localhost:8083
@@ -41,7 +42,7 @@ spring:
             - Path=/tarifas/**
 
         # ===============================
-        # MS-CAMIONES (local)
+        # MS-CAMIONES
         # ===============================
         - id: ms-camiones
           uri: http://localhost:8084
@@ -49,7 +50,7 @@ spring:
             - Path=/camiones/**, /depositos/**
 
         # ===============================
-        # MS-SOLICITUDES (local)
+        # MS-SOLICITUDES
         # ===============================
         - id: ms-solicitudes
           uri: http://localhost:8085
@@ -58,12 +59,16 @@ spring:
           filters:
             - TokenRelay
 
+      # 🌐 CORS GLOBAL PARA VITE + GATEWAY
       globalcors:
         corsConfigurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:5173"
-            allowedMethods: "*"
-            allowedHeaders: "*"
+          "[/**]":
+            allowedOrigins:
+              - "http://localhost:5173"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
             allowCredentials: true
 
 logging:
