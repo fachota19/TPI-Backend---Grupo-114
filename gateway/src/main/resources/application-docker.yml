@@ -2,73 +2,57 @@ server:
   port: 8080
 
 spring:
-  application:
-    name: api-gateway
-  main:
-    web-application-type: reactive
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # Corregido: apunta al realm "tpi-backend"
-          issuer-uri: http://keycloak:8080/realms/tpi-backend
-
   cloud:
     gateway:
+
       default-filters:
         - TokenRelay
         - AddResponseHeader=X-Gateway, Grupo114
 
       routes:
 
-        # ===============================
-        # MS-USUARIOS
-        # ===============================
         - id: ms-usuarios
           uri: http://ms-usuarios:8080
           predicates:
-            - Path=/usuarios/**, /clientes/**, /transportistas/**
+            - Path=/usuarios/**
+            - Path=/clientes/**
+            - Path=/transportistas/**
           filters:
             - TokenRelay
 
-        # ===============================
-        # MS-TARIFAS
-        # ===============================
         - id: ms-tarifas
           uri: http://ms-tarifas:8080
           predicates:
             - Path=/tarifas/**
-          filters: # <-- MODIFICACIÓN AÑADIDA
+          filters:
             - TokenRelay
 
-        # ===============================
-        # MS-CAMIONES
-        # ===============================
         - id: ms-camiones
           uri: http://ms-camiones:8080
           predicates:
-            - Path=/camiones/**, /depositos/**
-          filters: # <-- MODIFICACIÓN AÑADIDA
+            - Path=/camiones/**
+            - Path=/depositos/**
+          filters:
             - TokenRelay
 
-        # ===============================
-        # MS-SOLICITUDES
-        # ===============================
         - id: ms-solicitudes
           uri: http://ms-solicitudes:8080
           predicates:
-            - Path=/solicitudes/**, /tramos/**, /rutas/**
+            - Path=/solicitudes/**
+            - Path=/tramos/**
+            - Path=/rutas/**
           filters:
             - TokenRelay
 
       globalcors:
         corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
+          "[/**]":
+            allowedOrigins:
+              - "http://localhost:5173"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
+
 
 logging:
   level:

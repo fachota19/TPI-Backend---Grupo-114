@@ -257,15 +257,15 @@ TPI-Backend---Grupo-114/
 
 ## 📊 Estado del Proyecto
 
-| Componente | Estado |
-|------------|--------|
-| ✅ Infraestructura Docker | Completado |
-| ✅ Microservicios | Completado |
-| ✅ API Gateway | Completado |
-| ✅ Keycloak | Completado |
-| ✅ Bases de Datos | Completado |
-| 🚧 Frontend | En progreso |
-| 📝 Documentación | En progreso |
+|          Componente       |    Estado    |
+|---------------------------|--------------|
+| ✅ Infraestructura Docker | Completado  |
+| ✅ Microservicios         | Completado  |
+| ✅ API Gateway            | Completado  |
+| ✅ Keycloak               | Completado  |
+| ✅ Bases de Datos         | Completado  |
+| 🚧 Frontend               | En progreso |
+| 📝 Documentación          | En progreso |
 
 ---
 

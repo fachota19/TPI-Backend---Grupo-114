@@ -12,7 +12,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081/realms/backend
+          issuer-uri: http://keycloak:8080/realms/tpi-backend
 
   cloud:
     gateway:
@@ -21,57 +21,53 @@ spring:
         - TokenRelay
         - AddResponseHeader=X-Gateway, Grupo114
 
+      ####################################################
+      # RUTAS CORRECTAS DEL TPI CON PREFIJO /api/**
+      ####################################################
       routes:
 
-        # ===============================
-        # MS-USUARIOS
-        # ===============================
         - id: ms-usuarios
-          uri: http://localhost:8082
+          uri: http://ms-usuarios:8080
           predicates:
-            - Path=/usuarios/**, /clientes/**, /transportistas/**
+            - Path=/api/usuarios/**, /api/clientes/**, /api/transportistas/**
           filters:
             - TokenRelay
 
-        # ===============================
-        # MS-TARIFAS
-        # ===============================
         - id: ms-tarifas
-          uri: http://localhost:8083
+          uri: http://ms-tarifas:8080
           predicates:
-            - Path=/tarifas/**
-
-        # ===============================
-        # MS-CAMIONES
-        # ===============================
-        - id: ms-camiones
-          uri: http://localhost:8084
-          predicates:
-            - Path=/camiones/**, /depositos/**
-
-        # ===============================
-        # MS-SOLICITUDES
-        # ===============================
-        - id: ms-solicitudes
-          uri: http://localhost:8085
-          predicates:
-            - Path=/solicitudes/**, /tramos/**, /rutas/**
+            - Path=/api/tarifas/**
           filters:
             - TokenRelay
 
-      # 🌐 CORS GLOBAL PARA VITE + GATEWAY
+        - id: ms-camiones
+          uri: http://ms-camiones:8080
+          predicates:
+            - Path=/api/camiones/**, /api/depositos/**
+          filters:
+            - TokenRelay
+
+        - id: ms-solicitudes
+          uri: http://ms-solicitudes:8080
+          predicates:
+            - Path=/api/solicitudes/**, /api/tramos/**, /api/rutas/**
+          filters:
+            - TokenRelay
+
+      ####################################################
+      # CORS COMPLETAMENTE CORRECTO PARA FRONTEND EN 5173
+      ####################################################
       globalcors:
         corsConfigurations:
           "[/**]":
             allowedOrigins:
               - "http://localhost:5173"
-            allowedMethods:
               - "*"
-            allowedHeaders:
               - "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
             allowCredentials: true
 
 logging:
   level:
-    root: INFO
     org.springframework.cloud.gateway: DEBUG

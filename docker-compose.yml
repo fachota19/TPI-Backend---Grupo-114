@@ -1,151 +1,34 @@
+version: '3.9'
+
 services:
 
+  ####################################################
+  # 🔐 KEYCLOAK
+  ####################################################
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0
-    container_name: keycloak
+    image: quay.io/keycloak/keycloak:24.0.3
     command:
       - start-dev
       - --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/realm:/opt/keycloak/data/import
     ports:
       - "8081:8080"
-    volumes:
-      - ./keycloak/realms/:/opt/keycloak/data/import/
     networks:
       - tpi-net
 
-  ms-usuarios:
-    build: 
-      context: ./MS-Usuarios
-    container_name: ms-usuarios
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://usuarios-db:5432/usuariosdb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    depends_on:
-      - usuarios-db
-    ports:
-      - "8082:8080"
-    networks:
-      - tpi-net
-
-  usuarios-db:
-    image: postgres:15
-    container_name: usuarios-db
-    environment:
-      POSTGRES_DB: usuariosdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
-    volumes: 
-      - usuarios_data:/var/lib/postgresql/data
-    networks:
-      - tpi-net
-
-  ms-tarifas:
-    build:
-      context: ./MS-Tarifas
-    container_name: ms-tarifas
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://tarifas-db:5432/tarifasdb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    depends_on:
-      - tarifas-db
-    ports:
-      - "8083:8080"
-    networks:
-      - tpi-net
-
-  tarifas-db:
-    image: postgres:15
-    container_name: tarifas-db
-    environment:
-      POSTGRES_DB: tarifasdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5434:5432"
-    volumes: 
-      - tarifas_data:/var/lib/postgresql/data
-    networks:
-      - tpi-net
-
-  ms-camiones:
-    build:
-      context: ./MS-Camiones
-    container_name: ms-camiones
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://camiones-db:5432/camionesdb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    depends_on:
-      - camiones-db
-    ports:
-      - "8084:8080"
-    networks:
-      - tpi-net
-
-  camiones-db:
-    image: postgres:15
-    container_name: camiones-db
-    environment:
-      POSTGRES_DB: camionesdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5435:5432"
-    volumes: 
-      - camiones_data:/var/lib/postgresql/data
-    networks:
-      - tpi-net
-
-  ms-solicitudes:
-    build:
-      context: ./MS-Solicitudes
-    container_name: ms-solicitudes
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://solicitudes-db:5432/solicitudesdb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    depends_on:
-      - solicitudes-db
-    ports:
-      - "8085:8080"
-    networks:
-      - tpi-net
-
-  solicitudes-db:
-    image: postgres:15
-    container_name: solicitudes-db
-    environment:
-      POSTGRES_DB: solicitudesdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5436:5432"
-    volumes: 
-      - solicitudes_data:/var/lib/postgresql/data
-    networks:
-      - tpi-net
-
+  ####################################################
+  # 🚪 API GATEWAY
+  ####################################################
   api-gateway:
-    build:
-      context: ./gateway
-    container_name: api-gateway
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
+    build: ./gateway
     ports:
       - "8080:8080"
     depends_on:
-      - keycloak 
+      - keycloak
       - ms-usuarios
       - ms-tarifas
       - ms-camiones
@@ -153,28 +36,117 @@ services:
     networks:
       - tpi-net
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
+  ####################################################
+  # 👤 MS USUARIOS + DB
+  ####################################################
+  usuarios-db:
+    image: postgres:15
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      POSTGRES_DB: usuariosdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - usuarios_data:/var/lib/postgresql/data
+    networks:
+      - tpi-net
     ports:
-      - "5050:80" 
-    depends_on: 
+      - "5433:5432"
+
+  ms-usuarios:
+    build: ./MS-Usuarios
+    depends_on:
       - usuarios-db
+    networks:
+      - tpi-net
+
+  ####################################################
+  # 💵 MS TARIFAS + DB
+  ####################################################
+  tarifas-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: tarifasdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - tarifas_data:/var/lib/postgresql/data
+    networks:
+      - tpi-net
+    ports:
+      - "5434:5432"
+
+  ms-tarifas:
+    build: ./MS-Tarifas
+    depends_on:
       - tarifas-db
+    networks:
+      - tpi-net
+
+  ####################################################
+  # 🚚 MS CAMIONES + DB
+  ####################################################
+  camiones-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: camionesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - camiones_data:/var/lib/postgresql/data
+    networks:
+      - tpi-net
+    ports:
+      - "5435:5432"
+
+  ms-camiones:
+    build: ./MS-Camiones
+    depends_on:
       - camiones-db
+    networks:
+      - tpi-net
+
+  ####################################################
+  # 📦 MS SOLICITUDES + DB
+  ####################################################
+  solicitudes-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: solicitudesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - solicitudes_data:/var/lib/postgresql/data
+    networks:
+      - tpi-net
+    ports:
+      - "5436:5432"
+
+  ms-solicitudes:
+    build: ./MS-Solicitudes
+    depends_on:
       - solicitudes-db
     networks:
       - tpi-net
 
-volumes: 
-  usuarios_data:
-  tarifas_data:
-  camiones_data:
-  solicitudes_data:
+  ####################################################
+  # 🎨 FRONTEND
+  ####################################################
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - tpi-net
+    depends_on:
+      - api-gateway
+      - keycloak
 
 networks:
   tpi-net:
     driver: bridge
+
+volumes:
+  usuarios_data:
+  tarifas_data:
+  camiones_data:
+  solicitudes_data:
