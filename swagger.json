@@ -1,0 +1,240 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API - Sistema de Logística de Contenedores",
+    "description": "Backend distribuido basado en microservicios (TPI 2025 - Backend de Aplicaciones).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:8080/api", "description": "API Gateway local" }
+  ],
+  "paths": {
+
+    "/usuarios": {
+      "get": {
+        "summary": "Listar usuarios",
+        "tags": ["Usuarios"],
+        "description": "Devuelve todos los usuarios registrados (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de usuarios" } }
+      },
+      "post": {
+        "summary": "Crear usuario",
+        "tags": ["Usuarios"],
+        "description": "Crea un nuevo usuario (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Usuario creado" } }
+      }
+    },
+    "/clientes": {
+      "get": {
+        "summary": "Listar clientes",
+        "tags": ["Clientes"],
+        "description": "Devuelve todos los clientes (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de clientes" } }
+      },
+      "post": {
+        "summary": "Registrar cliente",
+        "tags": ["Clientes"],
+        "description": "Crea un nuevo cliente (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Cliente creado" } }
+      }
+    },
+    "/transportistas": {
+      "get": {
+        "summary": "Listar transportistas",
+        "tags": ["Transportistas"],
+        "description": "Devuelve todos los transportistas (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de transportistas" } }
+      },
+      "post": {
+        "summary": "Registrar transportista",
+        "tags": ["Transportistas"],
+        "description": "Crea un nuevo transportista (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Transportista creado" } }
+      }
+    },
+
+    "/solicitudes": {
+      "get": {
+        "summary": "Listar solicitudes",
+        "tags": ["Solicitudes"],
+        "description": "Devuelve todas las solicitudes existentes (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de solicitudes" } }
+      },
+      "post": {
+        "summary": "Crear solicitud",
+        "tags": ["Solicitudes"],
+        "description": "Permite al cliente crear una nueva solicitud de traslado.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "clienteId": 1,
+                "contenedor": { "pesoKg": 2500, "volumenM3": 12 },
+                "origenDireccion": "Calle 123",
+                "destinoDireccion": "Ruta 9 km 500"
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Solicitud creada" } }
+      }
+    },
+    "/solicitudes/{id}": {
+      "get": {
+        "summary": "Obtener solicitud por ID",
+        "tags": ["Solicitudes"],
+        "description": "Devuelve los datos de una solicitud.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Solicitud encontrada" } }
+      }
+    },
+    "/solicitudes/{id}/seguimiento": {
+      "get": {
+        "summary": "Ver seguimiento de solicitud",
+        "tags": ["Solicitudes"],
+        "description": "Devuelve los tramos y estados del contenedor.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Seguimiento mostrado" } }
+      }
+    },
+    "/tramos/{id}/iniciar": {
+      "put": {
+        "summary": "Iniciar tramo",
+        "tags": ["Tramos"],
+        "description": "El transportista marca el inicio de un tramo.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Tramo iniciado" } }
+      }
+    },
+    "/tramos/{id}/finalizar": {
+      "put": {
+        "summary": "Finalizar tramo",
+        "tags": ["Tramos"],
+        "description": "El transportista marca el final de un tramo.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Tramo finalizado" } }
+      }
+    },
+
+    "/camiones": {
+      "get": {
+        "summary": "Listar camiones",
+        "tags": ["Camiones"],
+        "description": "Devuelve todos los camiones registrados.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de camiones" } }
+      },
+      "post": {
+        "summary": "Registrar camión",
+        "tags": ["Camiones"],
+        "description": "Crea un nuevo camión (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Camión creado" } }
+      }
+    },
+    "/camiones/disponibles": {
+      "get": {
+        "summary": "Listar camiones disponibles",
+        "tags": ["Camiones"],
+        "description": "Devuelve los camiones que no están actualmente asignados.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de camiones disponibles" } }
+      }
+    },
+    "/depositos": {
+      "get": {
+        "summary": "Listar depósitos",
+        "tags": ["Depósitos"],
+        "description": "Devuelve los depósitos existentes.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de depósitos" } }
+      },
+      "post": {
+        "summary": "Crear depósito",
+        "tags": ["Depósitos"],
+        "description": "Crea un nuevo depósito (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Depósito creado" } }
+      }
+    },
+
+    "/tarifas": {
+      "get": {
+        "summary": "Listar tarifas",
+        "tags": ["Tarifas"],
+        "description": "Devuelve todas las tarifas vigentes (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lista de tarifas" } }
+      },
+      "post": {
+        "summary": "Crear tarifa",
+        "tags": ["Tarifas"],
+        "description": "Crea una nueva tarifa (solo OPERADOR).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Tarifa creada" } }
+      }
+    },
+    "/tarifas/calcular": {
+      "post": {
+        "summary": "Calcular costo estimado",
+        "tags": ["Tarifas"],
+        "description": "Calcula el costo del traslado según la tarifa activa.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "distanciaKm": 200,
+                "pesoKg": 1500,
+                "volumenM3": 10,
+                "diasEstadia": 1,
+                "camionId": 3
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Costo calculado",
+            "content": {
+              "application/json": {
+                "example": {
+                  "costoTotal": 125000.5,
+                  "detalle": {
+                    "costoKm": 100000,
+                    "costoPeso": 15000,
+                    "costoVolumen": 5000,
+                    "costoEstadia": 5000.5
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

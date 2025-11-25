@@ -1,0 +1,182 @@
+version: "3.9"
+
+services:
+
+  # ==========================================
+  # 🔐 KEYCLOAK
+  # ==========================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    networks:
+      - tpi-net
+
+  # ==========================================
+  # 🗄 BASES DE DATOS
+  # ==========================================
+  usuarios-db:
+    image: postgres:16
+    container_name: usuarios-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: usuariosdb
+    ports:
+      - "5433:5432"
+    networks:
+      - tpi-net
+
+  tarifas-db:
+    image: postgres:16
+    container_name: tarifas-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: tarifasdb
+    ports:
+      - "5434:5432"
+    networks:
+      - tpi-net
+
+  solicitudes-db:
+    image: postgres:16
+    container_name: solicitudes-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: solicitudesdb
+    ports:
+      - "5435:5432"
+    networks:
+      - tpi-net
+
+  camiones-db:
+    image: postgres:16
+    container_name: camiones-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: camionesdb
+    ports:
+      - "5436:5432"
+    networks:
+      - tpi-net
+
+  # ==========================================
+  # 🌍 OSRM (distancias para geoapi)
+  # ==========================================
+  osrm:
+    image: ghcr.io/project-osrm/osrm-backend:latest
+    container_name: osrm
+    command: >
+      sh -c "osrm-extract -p /data/profiles/car.lua /data/osm/argentina-latest.osm.pbf &&
+            osrm-partition /data/osm/argentina-latest.osrm &&
+            osrm-customize /data/osm/argentina-latest.osrm &&
+            osrm-routed --algorithm=MLD /data/osm/argentina-latest.osrm"
+    volumes:
+      - ./osrm/osrm-profiles:/data/profiles
+      - ./osrm/osrm-data:/data/osm
+    ports:
+      - "5000:5000"
+    networks:
+      - tpi-net
+
+  # ==========================================
+  # 🌍 GEOAPI (usa OSRM)
+  # ==========================================
+  geoapi:
+    build: ./geoapi
+    container_name: geoapi
+    depends_on:
+      - osrm
+    ports:
+      - "8086:8080"
+    networks:
+      - tpi-net
+
+  # ==========================================
+  # 🚌 MICROSERVICIOS (backend)
+  # ==========================================
+  ms-usuarios:
+    build: ./ms-usuarios
+    container_name: ms-usuarios
+    depends_on:
+      - usuarios-db
+      - keycloak
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8082:8080"
+    networks:
+      - tpi-net
+
+  ms-tarifas:
+    build: ./ms-tarifas
+    container_name: ms-tarifas
+    depends_on:
+      - tarifas-db
+      - keycloak
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8083:8080"
+    networks:
+      - tpi-net
+
+  ms-solicitudes:
+    build: ./ms-solicitudes
+    container_name: ms-solicitudes
+    depends_on:
+      - solicitudes-db
+      - keycloak
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8084:8080"
+    networks:
+      - tpi-net
+
+  ms-camiones:
+    build: ./ms-camiones
+    container_name: ms-camiones
+    depends_on:
+      - camiones-db
+      - geoapi
+      - keycloak
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8085:8080"
+    networks:
+      - tpi-net
+
+  # ==========================================
+  # 🚪 API GATEWAY (FRONTAL)
+  # ==========================================
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    depends_on:
+      - ms-usuarios
+      - ms-tarifas
+      - ms-solicitudes
+      - ms-camiones
+      - keycloak
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    networks:
+      - tpi-net
+
+# ==========================================
+# 🌐 RED
+# ==========================================
+networks:
+  tpi-net:

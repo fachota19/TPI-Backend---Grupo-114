@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+
+      default-filters:
+        - TokenRelay
+        - AddResponseHeader=X-Gateway, Grupo114
+
+      routes:
+
+        ## ================================
+        ## MS-USUARIOS
+        ## ================================
+        - id: ms-usuarios
+          uri: http://ms-usuarios:8080
+          predicates:
+            - Path=/usuarios/**,/clientes/**,/transportistas/**
+
+        ## ================================
+        ## MS-TARIFAS
+        ## ================================
+        - id: ms-tarifas
+          uri: http://ms-tarifas:8080
+          predicates:
+            - Path=/tarifas/**
+
+        ## ================================
+        ## MS-CAMIONES
+        ## ================================
+        - id: ms-camiones
+          uri: http://ms-camiones:8080
+          predicates:
+            - Path=/api/camiones/**,/api/depositos/**,/api/tipos-camion/**
+
+        ## ================================
+        ## MS-SOLICITUDES
+        ## ================================
+        - id: ms-solicitudes
+          uri: http://ms-solicitudes:8080
+          predicates:
+            - Path=/solicitudes/**,/tramos/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/tpi-backend
