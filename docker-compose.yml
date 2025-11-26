@@ -8,12 +8,13 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:23.0
     container_name: keycloak
-    command: 
+    command:
       - start-dev
       - --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+
     volumes:
       - ./keycloak/realm:/opt/keycloak/data/import
     ports:
@@ -73,16 +74,16 @@ services:
       - tpi-net
 
   # ==========================================
-  # 🌍 OSRM (distancias para geoapi)
+  # 🌍 OSRM
   # ==========================================
   osrm:
     image: ghcr.io/project-osrm/osrm-backend:latest
     container_name: osrm
     command: >
       sh -c "osrm-extract -p /data/profiles/car.lua /data/osm/argentina-latest.osm.pbf &&
-            osrm-partition /data/osm/argentina-latest.osrm &&
-            osrm-customize /data/osm/argentina-latest.osrm &&
-            osrm-routed --algorithm=MLD /data/osm/argentina-latest.osrm"
+             osrm-partition /data/osm/argentina-latest.osrm &&
+             osrm-customize /data/osm/argentina-latest.osrm &&
+             osrm-routed --algorithm=MLD /data/osm/argentina-latest.osrm"
     volumes:
       - ./osrm/osrm-profiles:/data/profiles
       - ./osrm/osrm-data:/data/osm
@@ -92,7 +93,7 @@ services:
       - tpi-net
 
   # ==========================================
-  # 🌍 GEOAPI (usa OSRM)
+  # 🌍 GEOAPI
   # ==========================================
   geoapi:
     build: ./geoapi
@@ -105,7 +106,7 @@ services:
       - tpi-net
 
   # ==========================================
-  # 🚌 MICROSERVICIOS (backend)
+  # 🚌 MICROSERVICIOS
   # ==========================================
   ms-usuarios:
     build: ./ms-usuarios
@@ -161,7 +162,7 @@ services:
       - tpi-net
 
   # ==========================================
-  # 🚪 API GATEWAY (FRONTAL)
+  # 🚪 API GATEWAY
   # ==========================================
   gateway:
     build: ./gateway
@@ -172,8 +173,6 @@ services:
       - ms-solicitudes
       - ms-camiones
       - keycloak
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8080:8080"
     networks:
