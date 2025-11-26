@@ -7,20 +7,24 @@ spring:
 
   cloud:
     gateway:
-
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
       default-filters:
         - TokenRelay
         - AddResponseHeader=X-Gateway, Grupo114
 
       routes:
-
         ## ================================
-        ## MS-USUARIOS
+        ## MS-USUARIOS (Nombre del servicio en docker-compose y puerto interno 8080)
         ## ================================
         - id: ms-usuarios
           uri: http://ms-usuarios:8080
           predicates:
-            - Path=/usuarios/**,/clientes/**,/transportistas/**
+            - Path=/api/usuarios/**,/api/clientes/**,/api/transportistas/**
 
         ## ================================
         ## MS-TARIFAS
@@ -28,7 +32,7 @@ spring:
         - id: ms-tarifas
           uri: http://ms-tarifas:8080
           predicates:
-            - Path=/tarifas/**
+            - Path=/api/tarifas/**
 
         ## ================================
         ## MS-CAMIONES
@@ -44,10 +48,19 @@ spring:
         - id: ms-solicitudes
           uri: http://ms-solicitudes:8080
           predicates:
-            - Path=/solicitudes/**,/tramos/**
+            - Path=/api/solicitudes/**,/tramos/**
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/tpi-backend
+          # 1. VALIDACIÓN: IDÉNTICO AL TOKEN (Soluciona el 401)
+          issuer-uri: http://localhost:8081/realms/tpi-backend
+          
+          # 2. CONEXIÓN: INTERNA DOCKER (Para descargar llaves)
+          jwk-set-uri: http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
