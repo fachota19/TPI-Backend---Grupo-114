@@ -19,7 +19,7 @@ spring:
 
       routes:
         ## ================================
-        ## MS-USUARIOS (Nombre del servicio en docker-compose y puerto interno 8080)
+        ## MS-USUARIOS
         ## ================================
         - id: ms-usuarios
           uri: http://ms-usuarios:8080
@@ -40,7 +40,10 @@ spring:
         - id: ms-camiones
           uri: http://ms-camiones:8080
           predicates:
-            - Path=/api/camiones/**,/api/depositos/**,/api/tipos-camion/**
+            - Path=/api/camiones/**,
+                    /api/depositos/**,
+                    /api/tipos-camion,
+                    /api/tipos-camion/**
 
         ## ================================
         ## MS-SOLICITUDES
@@ -54,10 +57,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # 1. VALIDACIÓN: IDÉNTICO AL TOKEN (Soluciona el 401)
           issuer-uri: http://localhost:8081/realms/tpi-backend
-          
-          # 2. CONEXIÓN: INTERNA DOCKER (Para descargar llaves)
           jwk-set-uri: http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
 
 logging:
