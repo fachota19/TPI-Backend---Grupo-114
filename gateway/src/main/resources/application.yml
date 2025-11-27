@@ -51,7 +51,7 @@ spring:
         - id: ms-solicitudes
           uri: http://ms-solicitudes:8080
           predicates:
-            - Path=/api/solicitudes/**,/api/tramos/**
+            - Path=/api/solicitudes/**,/tramos/**
 
   security:
     oauth2:
